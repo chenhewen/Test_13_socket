@@ -26,7 +26,6 @@ public class Server {
 				System.out.println("accept a new socket");
 				
 				ServerThread serverThread = ServerThread.getInstance();
-//				ServerThread serverThread = new ServerThread();
 				serverThread.addSocket(socket);
 				System.out.println("add a new socket");
 				if (!serverThread.isAlive()) {
@@ -34,7 +33,7 @@ public class Server {
 					System.out.println("server thread start");
 				} 
 				
-				System.out.println("接收了 第" + i + "个请求");
+				System.out.println("接收了 第" + i + "个Client");
 				i++;
 			} catch (IOException e) {
 				System.out.println(e);

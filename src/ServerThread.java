@@ -19,8 +19,6 @@ public class ServerThread extends Thread {
 	
 	Map<String, ProtocolModle> mPool = new HashMap<String, ProtocolModle>();
 	
-	Worker mWorker = new Worker();
-	
 	List<Socket> mSocketList = new ArrayList<Socket>();
 	
 	private static ServerThread sInstance;
@@ -36,7 +34,6 @@ public class ServerThread extends Thread {
 		
 	}
 	
-	
 	public void addSocket(Socket socket) {
 		mSocketQueue.add(socket);
 	}
@@ -44,60 +41,25 @@ public class ServerThread extends Thread {
 	public void run() {
 		
 		while (true) {
-			
-			InputStream in = null;
-			DataInputStream din = null;
-			OutputStream out = null;
-			DataOutputStream dos = null;
-			
 			Socket socket = null;
 			try {
 				socket = mSocketQueue.take();
-				System.out.println("take a socket  from block queue");
+				System.out.println("take a socket from block queue");
 			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			
 			if (socket == null) {
 				continue;
 			}
+
+			//将新的socket连接保存起来
+			GlobalSocketStore.put(socket.getRemoteSocketAddress().toString(), socket);
+			System.out.println("a new socket put into GlobalSocketStore: " + socket.getRemoteSocketAddress().toString());
 			
-			mSocketList.add(socket);
-			System.out.println("add a socket mSocketList");
-			for (Socket s : mSocketList) {
-				System.out.println("遍历socket");
-				try {
-					in = s.getInputStream();
-					din = new DataInputStream(in);
-					String modleString = din.readUTF();
-					ProtocolModle protocolModle = new ProtocolModle(modleString);
-					
-//					mWorker.work(protocolModle);
-					
-					out = s.getOutputStream();
-					dos = new DataOutputStream(out);
-					dos.writeUTF(mWorker.work(protocolModle));
-					
-				} catch (IOException e) {
-					System.out.println(e);
-				} finally {
-					/*if (in != null) {
-						try {
-							in.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					if (out != null) {
-						try {
-							out.close();
-						} catch (IOException e) {
-						}
-					}*/
-				}
-				
-			}
+			//进行流操作
+			new DataChangeThread(socket).start();
+			System.out.println("start a new thread to deal with data");
 		}
 	}
 }
