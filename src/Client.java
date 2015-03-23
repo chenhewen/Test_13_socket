@@ -1,6 +1,11 @@
 import java.io.*;
 import java.net.*;
 
+/**
+ * 
+ * @author chenhewen
+ *
+ */
 public class Client {
 
 	public Client() {
