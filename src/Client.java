@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 
 /**
- * 
+ * 客户端
  * @author chenhewen
  *
  */
