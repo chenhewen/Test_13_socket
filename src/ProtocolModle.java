@@ -1,3 +1,5 @@
+import com.google.gson.annotations.SerializedName;
+
 
 /**
  * socket 传输字符串内容协议
@@ -9,10 +11,13 @@ public class ProtocolModle {
 	
 	public static final String DIVIDER = ":";
 	
+	@SerializedName("mFromAndroidId")
 	private String mFromAndroidId;
 	
+	@SerializedName("mToAndroidId")
 	private String mToAndroidId;
 	
+	@SerializedName("mMessage")
 	private String mMessage;
 	
 	public ProtocolModle(String protocolString) {

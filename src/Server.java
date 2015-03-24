@@ -8,11 +8,13 @@ import java.net.*;
  */
 public class Server {
 	
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		
 		ServerSocket serverSocket = null;
 		try {
-			serverSocket = new ServerSocket(5432);
+			serverSocket = new ServerSocket(Constant.BIND_PORT);
+			System.out.println("server started...");
 		} catch (IOException e) {
 			System.out.println(e);
 			System.exit(1);
@@ -23,18 +25,17 @@ public class Server {
 			Socket socket = null;
 			try {
 				socket = serverSocket.accept();
-				System.out.println("accept a new socket");
+				System.out.println("accept a new socket SOCKET_" + i++);
 				
 				ServerThread serverThread = ServerThread.getInstance();
 				serverThread.addSocket(socket);
-				System.out.println("add a new socket");
+				System.out.println("add the socket to socket queue");
+				
 				if (!serverThread.isAlive()) {
 					serverThread.start();
-					System.out.println("server thread start");
+					System.out.println("server start a new thread to read and write data");
 				} 
 				
-				System.out.println("接收了 第" + i + "个Client");
-				i++;
 			} catch (IOException e) {
 				System.out.println(e);
 			} finally {

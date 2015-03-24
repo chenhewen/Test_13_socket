@@ -15,4 +15,8 @@ public class GlobalSocketStore {
 		return sGlobalSocketMap.get(id);
 	}
 	
+	public static void remove(String key) {
+		sGlobalSocketMap.remove(key);
+	}
+	
 }

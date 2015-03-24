@@ -2,6 +2,7 @@ import java.awt.image.BufferStrategy;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,6 +20,8 @@ public class DataChangeThread extends Thread {
 	DataOutputStream dos = null;
 
 	Worker mWorker = new Worker();
+	DataChangeController mController = new DataChangeController();
+	DataParser mParser = new DataParser();
 
 	public DataChangeThread(Socket mSocket) {
 		this.mSocket = mSocket;
@@ -32,7 +35,9 @@ public class DataChangeThread extends Thread {
 				din = new DataInputStream(in);
 				String modleString = din.readUTF();
 				
-				ProtocolModle protocolModle = new ProtocolModle(modleString);
+				//ProtocolModle protocolModle = new ProtocolModle(modleString);
+				ProtocolModle protocolModle = mParser.parseProtocolModle(modleString);
+				//mController.dispatch(protocolModle);
 				
 				Set<Map.Entry<String, Socket>> entries = GlobalSocketStore.sGlobalSocketMap.entrySet();
 				for (Map.Entry<String, Socket> entry : entries) {
@@ -45,15 +50,33 @@ public class DataChangeThread extends Thread {
 				dos = new DataOutputStream(out);
 				dos.writeUTF(mWorker.work(protocolModle));*/
 
+			} catch (EOFException e) {
+				e.printStackTrace();
+				shutDown();
+				break;
 			} catch (IOException e) {
-				System.out.println(e);
+				e.printStackTrace();
 			} finally {
 
-			}
+			} 
 		}
 	}
 
 	public void shutDown() {
+		
+		//移除socket
+		GlobalSocketStore.remove(mSocket.getRemoteSocketAddress().toString());
+		
+		if (mSocket != null) {
+			try {
+				mSocket.shutdownInput();
+				mSocket.shutdownOutput();
+				mSocket.close();
+				mSocket = null;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		if (in != null) {
 			try {
 				in.close();
@@ -70,13 +93,5 @@ public class DataChangeThread extends Thread {
 				e.printStackTrace();
 			}
 		}
-		/*if (mSocket != null) {
-			try {
-				mSocket.close();
-				mSocket = null;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}*/
 	}
 }
